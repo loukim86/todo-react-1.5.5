@@ -1,33 +1,39 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from 'react'
+import PropTypes from 'prop-types'
 
-import TasksFilter from '../TasksFilter/TasksFilter';
-import './Footer.css';
+import TasksFilter from '../TasksFilter/TasksFilter'
 
-const Footer = ({ filter, updateFilter, clearCompletedTasks, activeTasks }) => {
+import './Footer.css'
+
+const Footer = ({ toDo, onToggleFilter, clearCompleted, buttons, filter }) => {
   return (
     <footer className="footer">
-      <span className="todo-count">{activeTasks} items left</span>
-      <TasksFilter filter={filter} onUpdateFilter={updateFilter} />
-      <button className="clear-completed" onClick={() => clearCompletedTasks()}>
+      <span className="todo-count">{toDo} items left</span>
+      <TasksFilter
+        onToggleFilter={onToggleFilter}
+        clearCompleted={clearCompleted}
+        buttonsText={buttons}
+        filter={filter}
+      />
+      <button className="clear-completed" onClick={() => clearCompleted()}>
         Clear completed
       </button>
     </footer>
-  );
-};
-
-Footer.propTypes = {
-  filter: PropTypes.string.isRequired,
-  updateFilter: PropTypes.func.isRequired,
-  clearCompletedTasks: PropTypes.func.isRequired,
-  activeTasks: PropTypes.number.isRequired,
-};
+  )
+}
 
 Footer.defaultProps = {
+  toDo: 0,
+  buttons: [],
   filter: 'All',
-  updateFilter: () => {},
-  clearCompletedTasks: () => {},
-  activeTasks: 0,
-};
+}
 
-export default Footer;
+Footer.propTypes = {
+  toDo: PropTypes.number.isRequired,
+  onToggleFilter: PropTypes.func.isRequired,
+  clearCompleted: PropTypes.func.isRequired,
+  buttons: PropTypes.array.isRequired,
+  filter: PropTypes.string.isRequired,
+}
+
+export default Footer

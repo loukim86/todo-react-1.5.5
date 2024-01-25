@@ -1,31 +1,35 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import './TasksFilter.css';
+import React from 'react'
+import PropTypes from 'prop-types'
 
-const TasksFilter = ({ filter, onUpdateFilter }) => {
-  const filters = [
-    { state: 'all', label: 'All' },
-    { state: 'active', label: 'Active' },
-    { state: 'completed', label: 'Completed' },
-  ];
+import './TasksFilter.css'
 
-  return (
-    <ul className="filters">
-      {filters.map(({ state, label }) => (
-        <li key={state}>
-          <button className={state === filter ? 'selected' : ''} onClick={() => onUpdateFilter(state)}>
-            {label}
-          </button>
-        </li>
-      ))}
-      ;
-    </ul>
-  );
-};
+const TasksFilter = ({ onToggleFilter, buttonsText, filter }) => {
+  const buttons = buttonsText.map((text, i) => {
+    let className = ''
+    if (text === filter) {
+      className = 'selected'
+    }
+    return (
+      <li key={i}>
+        <button className={className} onClick={() => onToggleFilter(i, text)}>
+          {text}
+        </button>
+      </li>
+    )
+  })
+
+  return <ul className="filters">{buttons}</ul>
+}
+
+TasksFilter.defaultProps = {
+  buttonsText: [],
+  filter: 'All',
+}
 
 TasksFilter.propTypes = {
+  onToggleFilter: PropTypes.func.isRequired,
+  buttonsText: PropTypes.array.isRequired,
   filter: PropTypes.string.isRequired,
-  onUpdateFilter: PropTypes.func.isRequired,
-};
+}
 
-export default TasksFilter;
+export default TasksFilter

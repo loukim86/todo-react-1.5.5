@@ -1,39 +1,59 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import './NewTaskForm.css';
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 
-export default class NewTaskForm extends React.Component {
+import './NewTaskForm.css'
+
+export default class NewTaskForm extends Component {
+  static defaultProps = {
+    onItemAdded: () => {},
+  }
+
   static propTypes = {
-    onAddTask: PropTypes.func.isRequired,
-  };
+    onItemAdded: PropTypes.func.isRequired,
+  }
+
   state = {
-    value: '',
-  };
+    label: '',
+  }
 
-  onChange = (e) => {
-      this.setState({
-          value: e.target.value
-      })
-  };
+  onLabelChange = (event) => {
+    this.setState({ label: event.target.value })
+  }
 
-  onSubmit = (e) => {
-      e.preventDefault();
-      if (this.state.value !== ''){
-        this.props.onAddTask(this.state.value);
-        this.setState({
-            value: ''
-        })
-      }
-  };
+  onChangeTime = (event) => {
+    const { value, name } = event.target
+
+    this.setState({
+      [name]: value,
+    })
+
+    if (!value.trim()) this.setState({ [name]: '' })
+  }
+
+  onSubmit = (event) => {
+    const { label } = this.state
+    event.preventDefault()
+    this.props.onItemAdded(label)
+    this.setState({
+      label: '',
+    })
+  }
 
   render() {
-      return (
-          <form onSubmit={this.onSubmit}>
-            <input className="new-todo" 
-            value={this.state.value}
-            placeholder="What needs to be done?"
-            onChange={this.onChange}
-            autoFocus />
-          </form>);
+    const { label } = this.state
+    return (
+      <form className="new-todo-form" onSubmit={this.onSubmit}>
+        <input
+          type="text"
+          className="new-todo"
+          placeholder="What needs to be done?"
+          onChange={this.onLabelChange}
+          value={label}
+          autoFocus
+        ></input>
+
+        <input className="new-todo-form__submit" type="submit" />
+      </form>
+    )
   }
-};
+}

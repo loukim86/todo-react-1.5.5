@@ -1,79 +1,65 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from 'react'
+import PropTypes from 'prop-types'
 
-import Task from "../Task/Task";
-import './TaskList.css';
+import Task from '../Task/Task'
 
-export default class TaskList extends React.Component {
-  state = {
-    value: '',
+import './TaskList.css'
+
+const TaskList = (props) => {
+  const { todos, onDeleted, onEdit, onToggleDone, filter } = props
+
+  const elements = todos.map((item) => {
+    const { id, ...itemProps } = item
+
+    return (
+      <Task
+        {...item}
+        key={id}
+        id={id}
+        onDeleted={() => onDeleted(id)}
+        onEdit={onEdit}
+        onToggleDone={() => onToggleDone(id)}
+        done={item.done}
+        itemProps={itemProps}
+      />
+    )
+  })
+
+  const elementsDone = elements.filter((element) => {
+    if (element) {
+      return element.props.done
+    }
+  })
+
+  const elementsActive = elements.filter((element) => {
+    if (element) {
+      return !element.props.done
+    }
+  })
+
+  let arrayFiltetered
+
+  if (filter === 'Completed') {
+    arrayFiltetered = elementsDone
+  } else if (filter === 'Active') {
+    arrayFiltetered = elementsActive
+  } else {
+    arrayFiltetered = elements
   }
 
-  onToggleClick = (text, id) => {
-    this.setState({ value: text });
-    this.props.onUpdateStatusTask(id);
-  };
-  
-  onToggle = (e) => {
-    this.setState({
-      value: e.target.value,
-    });
-  };
+  return <ul className="todo-list">{arrayFiltetered}</ul>
+}
 
-  onSubmit = (e, id) => {
-    e.preventDefault();
-    if (this.state.value !== '') {
-      this.props.onEditTask(id, this.state.value);
-      this.setState({ value: '' }); 
-  };
-};
+TaskList.defaultProps = {
+  todos: [],
+}
 
-  render() {
-    const { taskData, onToggle, onDelete } = this.props;
-    const taskTodo = taskData.map((item) => {
-      const {id, state, ...itemProps} = item;
-      return (
-        <li key={id} className={state}>
-        <div className="view">
-          <input
-            className="toggle"
-            type="checkbox"
-            checked={state === 'completed' ? true : false}
-            onChange={() => onToggle(id)}
-          />
-          <label><Task taskItem={itemProps} /></label>
-          <button className="icon icon-edit" onClick={() => this.onToggleClick(itemProps.description, id)}></button>
-          <button className="icon icon-destroy" onClick={() => onDelete(item.id)}></button>
-        </div>
-        {state === 'editing' ? (
-          <form onSubmit={(e) => this.onSubmit(e, id)} itemId={id}>
-            <input type="text"
-            className='edit'
-            value={this.state.value}
-            onChange={this.onToggle} />
-          </form>
-        ) : null}
-      </li>
-      )
-    });
-  
-    return (
-      <ul className="todo-list">
-        {taskTodo}
-      </ul>
-    )
-   };
-  };
+TaskList.propTypes = {
+  todos: PropTypes.array.isRequired,
+  onDeleted: PropTypes.func.isRequired,
+  onEdit: PropTypes.func.isRequired,
+  onToggleDone: PropTypes.func.isRequired,
+  filter: PropTypes.string.isRequired,
+}
 
-  TaskList.propTypes = {
-    taskData: PropTypes.arrayOf(
-      PropTypes.shape({
-        id: PropTypes.number.isRequired,
-        state: PropTypes.string.isRequired,
-        description: PropTypes.string.isRequired,
-        created: PropTypes.string.isRequired,
-      })
-    ).isRequired,
-    onToggle: PropTypes.func.isRequired,
-    onDelete: PropTypes.func.isRequired,
-  };
+export default TaskList

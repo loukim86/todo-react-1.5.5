@@ -1,120 +1,144 @@
-import React from 'react';
-import { formatDistanceToNow } from 'date-fns';
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
+import { formatDistance } from 'date-fns'
 
-import Header from '../Header/Header';
-import TaskList from '../TaskList/TaskList';
-import Footer from '../Footer/Footer';
+import './App.css'
 
-import './App.css';
+import TaskList from '../TaskList/TaskList'
+import Footer from '../Footer/Footer'
+import NewTaskForm from '../NewTaskForm/NewTaskForm'
 
-export default class App extends React.Component {
-  constructor() {
-    super();
-    this.state = {
-      tasks: [
-        { id: 1, state: 'completed', description: 'Completed task', created: 'created 17 seconds ago' },
-        { id: 2, state: 'active', description: 'Editing task', created: 'created 5 minutes ago' },
-        { id: 3, state: 'active', description: 'Active task', created: 'created 5 minutes ago' },
-      ],
-      filter: 'all',
-    };
+export default class App extends Component {
+  static defaultProps = {
+    todoData: [],
+    buttons: [],
+    filter: 'All',
+    edit: false,
   }
 
-  handleAddTask = (itemValue) => {
-    const id = this.state.tasks.length + 1;
-    const state = '';
-    const description = itemValue;
-    const created = formatDistanceToNow(new Date(), { addSuffix: true });
-    this.setState(({ tasks }) => ({
-      tasks: [...tasks, { id, state, description, created }],
-    }));
-  };
+  static propTypes = {
+    todoData: PropTypes.array.isRequired,
+    buttons: PropTypes.array.isRequired,
+    filter: PropTypes.string.isRequired,
+    edit: PropTypes.bool.isRequired,
+  }
 
-  changeTaskContent = (id, newState) => {
-    this.setState(({ tasks }) => {
-      const taskDataLeft = tasks.map((item) => {
-        if (item.id === id) {
-          return newState(item);
-        }
-        return item;
-      });
-      return { tasks: taskDataLeft };
-    });
-  };
+  maxId = 0
 
-  onEditTask = (id, text) => {
-    this.changeTaskContent(id, (item) => {
-      const taskDescription = text;
-      const taskStatus = 'active';
-      return { ...item, state: taskStatus, description: taskDescription };
-    });
-  };
+  state = {
+    todoData: [
+      this.createTodoItem('Completed task', new Date(), true),
+      this.createTodoItem('Editing task', new Date()),
+      this.createTodoItem('Active Task', new Date()),
+    ],
+    buttons: ['All', 'Active', 'Completed'],
+    filter: 'All',
+    edit: false,
+  }
 
-  onUpdateStatusTask = (id) => {
-    this.changeTaskContent(id, (item) => {
-      const taskStatus = 'editing';
-      return { ...item, state: taskStatus };
-    });
-  };
+  addItem = (text) => {
+    const newItem = this.createTodoItem(text, new Date())
+    this.setState(({ todoData }) => {
+      const newArray = [...todoData, newItem]
+      return { todoData: newArray }
+    })
+  }
 
-  onToggleTaskStatus = (id) => {
-    this.changeTaskContent(id, (item) => {
-      const taskStatus = item.state === 'completed' ? 'active' : 'completed';
-      return { ...item, state: taskStatus };
-    });
-  };
+  deleteItem = (id) => {
+    this.setState(({ todoData }) => {
+      const idx = todoData.findIndex((el) => el.id === id)
+      const newArray = [...todoData.slice(0, idx), ...todoData.slice(idx + 1)]
+      return { todoData: newArray }
+    })
+  }
 
-  onDeleteTask = (id) => {
-    this.setState(({ tasks }) => {
-      const taskItemsLeft = tasks.filter((item) => item.id !== id);
-      return { tasks: taskItemsLeft };
-    });
-  };
-  clearCompletedTasks = () => {
-    const taskCompleted = this.filterTasks(this.state.tasks, 'completed');
-    taskCompleted.forEach((el) => {
-      this.onDeleteTask(el.id);
-    });
-  };
+  clearCompleted = () => {
+    this.state.todoData.forEach((item) => {
+      if (item.done) {
+        this.deleteItem(item.id)
+      }
+    })
+  }
 
-  updateFilter = (filter) => {
-    this.setState({ filter });
-  };
+  editItem = (id, label) => {
+    this.setState(({ todoData }) => {
+      return {
+        todoData: this.toggleProperty(todoData, id, 'edit', label),
+      }
+    })
+  }
 
-  filterTasks = (tasks, filter) => {
-    if (filter !== 'all') {
-      return tasks.filter((el) => el.state === filter);
+  createTodoItem(label, timeStamp, done = false) {
+    return {
+      label,
+      done,
+      edit: false,
+      id: this.maxId++,
+      timeStamp,
+      string: formatDistance(new Date(), timeStamp, {
+        includeSeconds: true,
+      }),
     }
-    return tasks;
-  };
+  }
 
-  countActive = (tasks) => {
-    return tasks.filter((el) => el.state !== 'completed').length;
-  };
+  toggleProperty(arr, id, propName, label) {
+    const idx = arr.findIndex((el) => el.id === id)
+
+    if (!label) {
+      label = this.state.todoData[idx].label
+    }
+
+    const oldItem = arr[idx]
+
+    const newItem = {
+      ...oldItem,
+      [propName]: !oldItem[propName],
+      label: label,
+    }
+
+    return [...arr.slice(0, idx), newItem, ...arr.slice(idx + 1)]
+  }
+
+  onToggleDone = (id) => {
+    this.setState(({ todoData }) => {
+      return {
+        todoData: this.toggleProperty(todoData, id, 'done'),
+      }
+    })
+  }
+
+  onToggleFilter = (i, text) => {
+    this.setState({ filter: text })
+  }
 
   render() {
-    const tasks = this.filterTasks(this.state.tasks, this.state.filter);
-    const activeTasks = this.countActive(this.state.tasks);
+    const { todoData } = this.state
+    const doneCount = todoData.filter((el) => el.done).length
+    const todoCount = todoData.length - doneCount
 
     return (
       <section className="todoapp">
-        <Header onCreateNewTask={this.handleAddTask} />
+        <header className="header">
+          <h1>todos</h1>
+          <NewTaskForm onItemAdded={this.addItem} />
+        </header>
         <section className="main">
           <TaskList
-            taskData={tasks}
-            onToggle={this.onToggleTaskStatus}
-            onDelete={this.onDeleteTask}
-            onUpdateStatusTask={this.onUpdateStatusTask}
-            onEditTask={this.onEditTask}
+            todos={todoData}
+            onDeleted={this.deleteItem}
+            onEdit={this.editItem}
+            onToggleDone={this.onToggleDone}
+            filter={this.state.filter}
           />
           <Footer
+            toDo={todoCount}
+            onToggleFilter={this.onToggleFilter}
+            clearCompleted={this.clearCompleted}
+            buttons={this.state.buttons}
             filter={this.state.filter}
-            updateFilter={this.updateFilter}
-            clearCompletedTasks={this.clearCompletedTasks}
-            activeTasks={activeTasks}
           />
         </section>
       </section>
-    );
-  } 
-};
+    )
+  }
+}
