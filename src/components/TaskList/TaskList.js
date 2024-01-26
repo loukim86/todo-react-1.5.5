@@ -1,15 +1,15 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from 'react'
+import PropTypes from 'prop-types'
 
-import Task from '../Task/Task';
+import Task from '../Task/Task'
 
-import './TaskList.css';
+import './TaskList.css'
 
 const TaskList = (props) => {
-  const { todos, onDeleted, onEdit, onToggleDone, filter } = props;
+  const { todos, onDeleted, onEdit, onToggleDone, filter } = props
 
   const elements = todos.map((item) => {
-    const { id, ...itemProps } = item;
+    const { id, ...itemProps } = item
 
     return (
       <Task
@@ -22,37 +22,37 @@ const TaskList = (props) => {
         done={item.done}
         itemProps={itemProps}
       />
-    );
-  });
+    )
+  })
 
   const elementsDone = elements.filter((element) => {
     if (element) {
-      return element.props.done;
+      return element.props.done
     }
-  });
+  })
 
   const elementsActive = elements.filter((element) => {
     if (element) {
-      return !element.props.done;
+      return !element.props.done
     }
-  });
+  })
 
-  let arrayFiltetered;
+  let arrayFiltetered
 
   if (filter === 'Completed') {
-    arrayFiltetered = elementsDone;
+    arrayFiltetered = elementsDone
   } else if (filter === 'Active') {
-    arrayFiltetered = elementsActive;
+    arrayFiltetered = elementsActive
   } else {
-    arrayFiltetered = elements;
+    arrayFiltetered = elements
   }
 
-  return <ul className="todo-list">{arrayFiltetered}</ul>;
-};
+  return <ul className="todo-list">{arrayFiltetered}</ul>
+}
 
 TaskList.defaultProps = {
   todos: [],
-};
+}
 
 TaskList.propTypes = {
   todos: PropTypes.array.isRequired,
@@ -60,6 +60,7 @@ TaskList.propTypes = {
   onEdit: PropTypes.func.isRequired,
   onToggleDone: PropTypes.func.isRequired,
   filter: PropTypes.string.isRequired,
-};
+}
 
-export default TaskList;
+export default TaskList
+

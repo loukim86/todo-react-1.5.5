@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 
-import './Task.css';
+import './Task.css'
 
 export default class Task extends Component {
   static defaultProps = {
@@ -12,7 +12,7 @@ export default class Task extends Component {
     onEdit: () => {},
     string: '',
     itemProps: {},
-  };
+  }
 
   static propTypes = {
     done: PropTypes.bool.isRequired,
@@ -22,51 +22,51 @@ export default class Task extends Component {
     onEdit: PropTypes.func.isRequired,
     string: PropTypes.string.isRequired,
     itemProps: PropTypes.object.isRequired,
-  };
+  }
 
   state = {
     label: this.props.itemProps.label,
-  };
+  }
 
-  newValue = '';
-  editing = false;
-  taskClassName = 'view';
-  editClassName = 'view';
+  newValue = ''
+  editing = false
+  taskClassName = 'view'
+  editClassName = 'view'
 
   onLabelChange = (event) => {
-    this.newValue = event.target.value;
-    this.setState({ label: event.target.value });
-  };
+    this.newValue = event.target.value
+    this.setState({ label: event.target.value })
+  }
 
   onSubmit = (event) => {
-    event.preventDefault();
-    this.props.onEdit(this.props.id, this.state.label);
-    this.editing = false;
+    event.preventDefault()
+    this.props.onEdit(this.props.id, this.state.label)
+    this.editing = false
     this.setState({
       label: this.state.label,
-    });
-  };
+    })
+  }
 
   componentDidMount() {
-    document.getElementById('edit').focus();
+    document.getElementById('edit').focus()
   }
 
   render() {
-    const { done, id } = this.props;
+    const { done, id } = this.props
     if (done) {
-      this.classNames = 'completed';
-      this.checked = true;
+      this.classNames = 'completed'
+      this.checked = true
     } else {
-      this.checked = false;
-      this.classNames = '';
+      this.checked = false
+      this.classNames = ''
     }
 
     if (this.editing === true) {
-      this.taskClassName = 'hidden';
-      this.editClassName = 'view';
+      this.taskClassName = 'hidden'
+      this.editClassName = 'view'
     } else {
-      this.taskClassName = 'view';
-      this.editClassName = 'hidden';
+      this.taskClassName = 'view'
+      this.editClassName = 'hidden'
     }
 
     return (
@@ -84,8 +84,8 @@ export default class Task extends Component {
             <button
               className="icon icon-edit"
               onClick={() => {
-                this.editing = true;
-                this.props.onEdit(this.props.id, this.newValue);
+                this.editing = true
+                this.props.onEdit(this.props.id, this.newValue)
               }}
             ></button>
             <button className="icon icon-destroy" onClick={this.props.onDeleted}></button>
@@ -107,6 +107,7 @@ export default class Task extends Component {
           </div>
         </li>
       </div>
-    );
+    )
   }
 }
+
